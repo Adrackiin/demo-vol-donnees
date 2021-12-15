@@ -52,10 +52,10 @@ Nous devrons brancher et récupérer la clé sans qu'il s'en rende compte. À la
 - `add` : ajout d'un nouveau fichier
 - `feat` : ajout d’une nouvelle fonctionnalité
 - `continue` : avancée normal du projet
+- `bug` : signalement d'un problème
 - `fix` : correction d’un bug
 - `perf` : amélioration des performances
+- `test` : ajout ou modification de tests
 - `refactor` : modification qui n’apporte ni nouvelle fonctionnalité ni d’amélioration de performances
 - `style` : changement qui n’apporte aucune altération fonctionnelle ou sémantique (indentation, mise en forme, ajout d’espace, renommage d’une variable…)
 - `docs` : rédaction ou mise à jour de documentation
-- `test` : ajout ou modification de tests
-- `bug` : signalement d'un problème
