@@ -58,3 +58,4 @@ Nous devrons brancher et récupérer la clé sans qu'il s'en rende compte. À la
 - `style` : changement qui n’apporte aucune altération fonctionnelle ou sémantique (indentation, mise en forme, ajout d’espace, renommage d’une variable…)
 - `docs` : rédaction ou mise à jour de documentation
 - `test` : ajout ou modification de tests
+- `bug` : signalement d'un problème
