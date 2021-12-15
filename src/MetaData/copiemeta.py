@@ -49,4 +49,3 @@ os.utime("2_edited.pdf", (os.path.getmtime(nameBad), os.path.getctime(nameBad)))
 os.remove(nameBad)
 os.remove(nameGood)
 os.rename(nameTemp, nameGood)
-
