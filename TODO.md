@@ -1,0 +1,1 @@
++ Refaire les fichiers d'edit de meta data car trop brouillon → transformer en classe
