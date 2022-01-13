@@ -8,7 +8,10 @@ class Client:
     def __init__(self, address, port):
         self.working_directory = os.getcwd().replace('\\', '/')
         self.connection = Connection()
-        self.connection.connect_to_server(address, port)
+        try:
+            self.connection.connect_to_server(address, port)
+        except:
+            exit(0)
         while self.connection.is_connected():
             msg = self.connection.receive_msg()
             args = msg.strip().split(' ')

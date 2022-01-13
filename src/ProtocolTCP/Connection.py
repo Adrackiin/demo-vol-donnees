@@ -40,11 +40,11 @@ class Connection:
             print("send=", b''.join(
                 [flag.value.to_bytes(1, 'little'),
                  b'\1' if end else b'\0',
-                 packet_chunk.encode() if flag == Flag.DATA else packet_chunk]), "\n")
+                 packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]), "\n")
             self.connection.send(b''.join(
                 [flag.value.to_bytes(1, 'little'),
                  b'\1' if end else b'\0',
-                 packet_chunk.encode() if flag == Flag.DATA else packet_chunk]))
+                 packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]))
 
         iterator = iter(it)
         current = next(iterator)
@@ -55,20 +55,30 @@ class Connection:
 
     def receive_packet(self):
         end = False
+        error = ""
         while not end:
             packet = self.connection.recv(PACKET_SIZE)
             print("receive=", packet, "\n")
             flag = Flag(packet[0])
             end = packet[1] == 1
             msg = packet[HEADER_SIZE:]
-            yield msg.decode() if flag != Flag.RAW_DATA else msg
+            if flag == Flag.ERROR:
+                error += msg.decode()
+            else:
+                yield msg.decode() if flag != Flag.RAW_DATA else msg
+        if error != "":
+            raise ValueError(error)
 
-    def send_msg(self, msg):
+    def send_msg(self, msg, flag=Flag.DATA):
         def split_msg():
             for i in range(0, len(msg), PACKET_SIZE - HEADER_SIZE):
                 yield msg[i:i + DATA_SIZE]
 
-        self.send_packet(Flag.DATA, split_msg())
+        self.send_packet(flag, split_msg())
+
+
+    def send_error(self, msg):
+        self.send_msg(msg, Flag.ERROR)
 
     def receive_msg(self):
         return "".join(list(self.receive_packet()))
@@ -76,12 +86,12 @@ class Connection:
     def send_file(self, path_file):
         def send_file_chunk(file):
             pos = 0
-            nb_iteration = ceil(size / 1024)
+            nb_iteration = ceil(size / DATA_SIZE)
             for i in range(nb_iteration):
                 file.seek(pos, 0)
-                data = file.read(1024)
+                data = file.read(DATA_SIZE)
                 yield data
-                pos += 1024
+                pos += DATA_SIZE
 
         size = os.path.getsize(path_file)
         self.send_msg(f"{path_file};{size}")

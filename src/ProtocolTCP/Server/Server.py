@@ -32,9 +32,6 @@ class Server:
     def is_server_connected(self):
         return self._server_connected
 
-    def send_err(self, err):
-        self.client.send_msg("{0}".format(err).encode())
-
     def get_file(self, file_to_get, to_put_in):
         self.client.send_msg(f"GET {file_to_get}")
         self.client.receive_file(to_put_in)
