@@ -1,8 +1,9 @@
+import os
 import time
 import traceback
 
 from .Server import Server
-from ..utils import file_is_present, concatenate_path
+from ..utils import file_is_present, get_path
 
 
 class Terminal(Server):
@@ -42,15 +43,18 @@ class Terminal(Server):
         Envoie un fichier
         Commande: 'PUT <fichier> <destination>'
         """
-        self.put_file(args[1], concatenate_path(self.current_path, args[2]))
+        file_to_send = get_path(".", args[1])
+        destination_path = get_path(self.current_path, args[2])
+        self.put_file(file_to_send, destination_path)
 
     def get(self, args):
         """
         Reçoit un fichier
         Commande: 'GET <fichier> [<destination>]'
         """
-        print(args)
-        self.get_file(f"{self.current_path}/{args[1]}", args[2] if len(args) > 2 else "")
+        file_to_get = get_path(self.current_path, args[1])
+        destination_path = get_path(".", args[2] if len(args) > 2 else "")
+        self.get_file(file_to_get, destination_path)
 
     def end(self, args):
         self.client.send_msg("END")

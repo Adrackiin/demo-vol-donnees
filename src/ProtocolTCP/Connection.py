@@ -4,6 +4,7 @@ from enum import Enum
 from math import ceil
 
 # Flag | End | ........
+from .utils import path_is_correct, file_is_present
 
 PACKET_SIZE = 1024
 HEADER_SIZE = 2
@@ -14,6 +15,7 @@ class Flag(Enum):
     DATA = 0
     RAW_DATA = 1
     ERROR = 2
+    ACK = 3
 
 
 class Connection:
@@ -76,9 +78,11 @@ class Connection:
 
         self.send_packet(flag, split_msg())
 
+    def send_ack(self):
+        self.send_msg("Le code c'est la loire", Flag.ACK)
 
-    def send_error(self, msg):
-        self.send_msg(msg, Flag.ERROR)
+    def send_error(self, error):
+        self.send_msg("{0}".format(error), Flag.ERROR)
 
     def receive_msg(self):
         return "".join(list(self.receive_packet()))

@@ -1,7 +1,7 @@
 import os
 
 from ..Connection import DATA_SIZE, Flag, Connection
-from ..utils import concatenate_path
+from ..utils import get_path, path_is_correct, file_is_present
 
 
 class Client:
@@ -28,14 +28,22 @@ class Client:
         Reçoit un fichier du serveur
         Commande reçu: 'PUT <destination>'
         """
-        self.connection.receive_file(args[1])
+        if path_is_correct(args[1]):
+            self.connection.send_ack()
+            self.connection.receive_file(args[1])
+        else:
+            self.connection.send_error(FileNotFoundError(f"{args[1]} not found"))
 
     def get(self, args):
         """
         Envoie un fichier au server
         Commande reçu: 'GET <fichier>'
         """
-        self.connection.send_file(args[1])
+        if file_is_present(args[1]):
+            self.connection.send_ack()
+            self.connection.send_file(args[1])
+        else:
+            self.connection.send_error(FileNotFoundError(f"{args[1]} not found"))
 
     def end(self, args):
         """
@@ -61,7 +69,7 @@ class Client:
             if to_send != "":
                 yield to_send
 
-        self.connection.send_packet(Flag.DATA, send(concatenate_path(self.working_directory, args[1] if len(args) > 1 else "")))
+        self.connection.send_packet(Flag.DATA, send(get_path(self.working_directory, args[1] if len(args) > 1 else "")))
 
     def cd(self, args):
         """
