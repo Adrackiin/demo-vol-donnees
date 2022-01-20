@@ -16,6 +16,7 @@ class Flag(Enum):
     RAW_DATA = 1
     ERROR = 2
     ACK = 3
+    COMMAND = 4
 
 
 class Connection:
@@ -85,7 +86,15 @@ class Connection:
         self.send_msg("Le code c'est la loire", Flag.ACK)
 
     def send_error(self, error):
-        self.send_msg("{0}".format(error), Flag.ERROR)
+        self.send_msg("Erreur client\n" + "{0}".format(error), Flag.ERROR)
+
+    def send_command(self, action, args=""):
+        if type(args) == str:
+            args = [args]
+        command = f"{action} "
+        for arg in args:
+            command += arg.replace("\\", "\\\\").replace(" ", "\ ")
+        self.send_msg(command, Flag.COMMAND)
 
     def receive_msg(self):
         return "".join(list(self.receive_packet()))
@@ -101,7 +110,8 @@ class Connection:
                 pos += DATA_SIZE
 
         size = os.path.getsize(path_file)
-        self.send_msg(f"{path_file};{size}")
+        file_name = path_file.split('/')[-1]
+        self.send_msg(f"{file_name};{size}")
         file_to_send = open(path_file, "rb")
         self.send_packet(Flag.RAW_DATA, send_file_chunk(file_to_send))
         file_to_send.close()
