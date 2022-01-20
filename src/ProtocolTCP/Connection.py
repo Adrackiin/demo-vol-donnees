@@ -49,7 +49,10 @@ class Connection:
                  packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]))
 
         iterator = iter(it)
-        current = next(iterator)
+        try:
+            current = next(iterator)
+        except StopIteration as e:
+            current = ""
         for chunk in iterator:
             send(current, False)
             current = chunk
