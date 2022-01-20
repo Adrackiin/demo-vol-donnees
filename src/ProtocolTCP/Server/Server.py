@@ -36,7 +36,7 @@ class Server:
         if not path_is_correct(destination_path):
             raise FileNotFoundError(f"{destination_path} not found")
         try:
-            self.client.send_msg(f"GET {file_to_get}")
+            self.client.send_command("GET", file_to_get)
             self.client.receive_msg()
             self.client.receive_file(destination_path)
         except Exception:
@@ -46,7 +46,7 @@ class Server:
         if not file_is_present(file_to_send):
             raise FileNotFoundError(f"File '{file_to_send}' doesn't exist")
         try:
-            self.client.send_msg(f"PUT {destination_path}")
+            self.client.send_command("PUT", destination_path)
             self.client.receive_msg()
             self.client.send_file(file_to_send)
         except Exception:
