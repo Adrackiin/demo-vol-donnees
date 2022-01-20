@@ -1,7 +1,7 @@
 import os
 
 from ..Connection import DATA_SIZE, Flag, Connection
-from ..utils import get_path, path_is_correct, file_is_present
+from ..utils import get_path, path_is_correct, file_is_present, parse_command
 
 
 class Client:
@@ -14,7 +14,7 @@ class Client:
             exit(0)
         while self.connection.is_connected():
             msg = self.connection.receive_msg()
-            args = msg.strip().split(' ')
+            args = parse_command(msg)
             action = args[0].lower()
             try:
                 eval(f"self.{action}")(args)
@@ -74,8 +74,9 @@ class Client:
     def cd(self, args):
         """
         Change de dossier courant
-        Commande reçu: 'CD <dossier>'
+        Commande reçu: 'CD [<dossier>]'
         """
+        '''
         if len(args) == 0:
             raise ParseError("No directory specified")
         current = '' if args[1][0] == '/' else self.working_directory
@@ -89,7 +90,14 @@ class Client:
             elif directory != '.':
                 current += ('/' if not current.endswith('/') else '') + directory
         self.working_directory = current
+        '''
+        target = os.getcwd()
+        if len(args) > 1:
+            target = args[1][:-1] if args[1][-1] == '/' else args[1]
+        self.working_directory = get_path(self.working_directory, target)
         self.connection.send_msg(self.working_directory)
+
+
 
     def pwd(self, args):
         """
