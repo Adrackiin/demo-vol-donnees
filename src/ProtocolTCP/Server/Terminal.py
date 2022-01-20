@@ -3,7 +3,7 @@ import time
 import traceback
 
 from .Server import Server
-from ..utils import file_is_present, get_path
+from ..utils import file_is_present, get_path, parse_command
 
 
 class Terminal(Server):
@@ -26,17 +26,17 @@ class Terminal(Server):
             except (EOFError, KeyboardInterrupt):
                 print()
                 command = "close"
-            args = command.strip().split(' ')
-            args[0] = args[0].lower()
-            action = args[0]
-            try:
-                eval(f"self.{action}")(args)
-            except (AttributeError, SyntaxError):
-                print("Unknown command")
-            except ParseError as error:
-                print(f"Error in command {action}: {error}")
-            except Exception:
-                print("\n", traceback.format_exc())
+            if len(command) > 0:
+                args = parse_command(command)
+                action = args[0].lower()
+                try:
+                    eval(f"self.{action}")(args)
+                except (AttributeError, SyntaxError):
+                    print("Unknown command")
+                except ParseError as error:
+                    print(f"Error in command {action}: {error}")
+                except Exception:
+                    print("\n", traceback.format_exc())
 
     def put(self, args):
         """
@@ -44,7 +44,7 @@ class Terminal(Server):
         Commande: 'PUT <fichier> <destination>'
         """
         file_to_send = get_path(".", args[1])
-        destination_path = get_path(self.current_path, args[2])
+        destination_path = get_path(self.current_path, args[2] if len(args) > 2 else "")
         self.put_file(file_to_send, destination_path)
 
     def get(self, args):
@@ -57,31 +57,29 @@ class Terminal(Server):
         self.get_file(file_to_get, destination_path)
 
     def end(self, args):
-        self.client.send_msg("END")
+        self.client.send_command("END")
         time.sleep(1)
         self.disconnect_client()
         self.connect_client()
 
     def close(self, args):
         if self.is_client_connected():
-            self.client.send_msg("END")
+            self.client.send_command("END")
             self.disconnect_client()
         self.close_server()
 
     def ls(self, args):
-        self.client.send_msg("LS")
+        self.client.send_command("LS")
         print(self.client.receive_msg())
 
     def cd(self, args):
-        if len(args) <= 1 or args[1] == "":
-            raise ParseError("No directory specified")
-        self.client.send_msg(" ".join(args))
+        self.client.send_command("CD", args[1:])
         msg = self.client.receive_msg()
         self.current_path = msg.strip()
         self.current_directory = self.current_path.split('/')[-1]
 
     def pwd(self, args):
-        self.client.send_msg("PWD")
+        self.client.send_command("PWD")
         print(self.client.receive_msg())
 
 
