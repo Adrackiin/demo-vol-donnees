@@ -4,7 +4,6 @@ from enum import Enum
 from math import ceil
 
 # Flag | End | ........
-from .utils import path_is_correct, file_is_present
 
 PACKET_SIZE = 1024
 HEADER_SIZE = 2
@@ -25,6 +24,9 @@ class Connection:
         self._connected = connected
 
     def connect_to_server(self, address, port):
+        """
+        Connexion à un serveur
+        """
         try:
             self.connection.connect((address, port))
             self._connected = True
@@ -32,14 +34,30 @@ class Connection:
             raise ConnectionError(f"Cannot reach '{address}'.")
 
     def disconnect(self):
+        """
+        Déconnection de la connexion
+        """
         self.connection.close()
         self._connected = False
 
     def is_connected(self):
+        """
+        Renvoie vrai s'il y a une connexion
+        """
         return self._connected
 
     def send_packet(self, flag, it):
+        """
+        Envoie un message sous la forme de plusieurs paquets
+        Prend en argument un générateur pour générer les différents paquets
+        """
+
         def send(packet_chunk, end):
+            """
+            Envoie un paquet sous la forme
+                FLAG END data
+            """
+            # Debug
             print("send=", b''.join(
                 [flag.value.to_bytes(1, 'little'),
                  b'\1' if end else b'\0',
@@ -49,6 +67,7 @@ class Connection:
                  b'\1' if end else b'\0',
                  packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]))
 
+        # Il faut savoir quel est le dernier morceau à envoyer pour préciser le flag END
         iterator = iter(it)
         try:
             current = next(iterator)
@@ -60,10 +79,14 @@ class Connection:
         send(current, True)
 
     def receive_packet(self):
+        """
+        Reçoit un message envoyé sous plusieurs paquets
+        """
         end = False
         error = ""
         while not end:
             packet = self.connection.recv(PACKET_SIZE)
+            # Debug
             print("receive=", packet, "\n")
             flag = Flag(packet[0])
             end = packet[1] == 1
@@ -76,31 +99,56 @@ class Connection:
             raise ValueError(error)
 
     def send_msg(self, msg, flag=Flag.DATA):
+        """
+        Envoie un message
+        """
         def split_msg():
+            """
+            Découpe un message en plusieurs morceaux
+            """
             for i in range(0, len(msg), PACKET_SIZE - HEADER_SIZE):
                 yield msg[i:i + DATA_SIZE]
 
         self.send_packet(flag, split_msg())
 
     def send_ack(self):
+        """
+        Envoie une confirmatiton
+        """
         self.send_msg("Le code c'est la loire", Flag.ACK)
 
     def send_error(self, error):
+        """
+        Envoie une erreur
+        """
         self.send_msg("Erreur client\n" + "{0}".format(error), Flag.ERROR)
 
     def send_command(self, action, args=""):
+        """
+        Envoie une commande sous la forme 'action arg1 args2...'
+        Les espaces ne séparant pas d'arguments sont précédés d'un '\'
+        """
         if type(args) == str:
             args = [args]
         command = f"{action} "
         for arg in args:
-            command += arg.replace("\\", "\\\\").replace(" ", "\ ")
+            command += arg.replace("\\", "\\\\").replace(" ", "\\ ")
         self.send_msg(command, Flag.COMMAND)
 
     def receive_msg(self):
+        """
+        Reçoit un message
+        """
         return "".join(list(self.receive_packet()))
 
     def send_file(self, path_file):
+        """
+        Envoie un fichier
+        """
         def send_file_chunk(file):
+            """
+            Découpe le fichier en plusieurs morceaux
+            """
             pos = 0
             nb_iteration = ceil(size / DATA_SIZE)
             for i in range(nb_iteration):
@@ -111,12 +159,16 @@ class Connection:
 
         size = os.path.getsize(path_file)
         file_name = path_file.split('/')[-1]
+        # Envoie des informations sur le fichier, nom + taille
         self.send_msg(f"{file_name};{size}")
         file_to_send = open(path_file, "rb")
         self.send_packet(Flag.RAW_DATA, send_file_chunk(file_to_send))
         file_to_send.close()
 
     def receive_file(self, file_destination):
+        """
+        Reçoit un fichier
+        """
         file_to_receive = self.receive_msg()
         file_info = file_to_receive.strip().split(';')
         file_name = file_info[0]

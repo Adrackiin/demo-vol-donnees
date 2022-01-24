@@ -15,12 +15,13 @@ class Terminal(Server):
         self.client.send_msg("PWD")
         msg = self.client.receive_msg()
 
-        # Full path
+        # Chemin absolu
         self.current_path = msg.strip()
-        # Only directory
+        # Dossier actuel
         self.current_directory = self.current_path.split('/')[-1]
 
         while self.is_server_connected():
+            # Gestion utilisateur
             try:
                 command = input(f"{self.current_directory}$ ")
             except (EOFError, KeyboardInterrupt):
@@ -30,6 +31,7 @@ class Terminal(Server):
                 args = parse_command(command)
                 action = args[0].lower()
                 try:
+                    # Appel de la fonction correspondante à l'action
                     eval(f"self.{action}")(args)
                 except (AttributeError, SyntaxError):
                     print("Unknown command")
