@@ -1,4 +1,7 @@
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from sectime import setctime
+from timestamp import to_timestamp
+import os
 
 
 def set_pdf_metadata(path, metadata):
@@ -6,11 +9,16 @@ def set_pdf_metadata(path, metadata):
     reader = PdfFileReader(file)
     writer = PdfFileWriter()
     writer.appendPagesFromReader(reader)
-    file.close()
     writer.addMetadata(metadata)
-    fout = open(f"{path}h", 'wb')
+    fout = open(f"{path}hjh", 'wb')
     writer.write(fout)
+    file.close()
     fout.close()
+    # try:
+    #     setctime(f"{path}hjh", to_timestamp("23/03/1991 12:12:48"))
+    # except:
+    #     print("error")
+    # os.utime(f"{path}hjh", (os.path.getctime(path), os.path.getmtime(path)))
 
 
 def get_pdf_metadata(path):
@@ -21,4 +29,4 @@ def get_pdf_metadata(path):
     return metadata
 
 
-set_pdf_metadata("../t.pdf", get_pdf_metadata("../r.pdf"))
+set_pdf_metadata("../r.pdf", get_pdf_metadata("../r.pdf"))

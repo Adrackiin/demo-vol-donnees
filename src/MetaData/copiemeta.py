@@ -1,11 +1,3 @@
-'''
-from pdfrw import PdfReader, PdfWriter, PdfDict
-pdf_reader = PdfReader('cre.pdf')
-metadata = PdfDict(File\  Modification\ Date/Time='2007:03:15 15:31:43+02:00')
-pdf_reader.Info.update(metadata)
-PdfWriter().write('cre.pdf', pdf_reader)
-'''
-
 import os
 import sys
 
