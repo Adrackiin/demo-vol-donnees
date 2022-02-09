@@ -8,3 +8,4 @@
 + ~~put dans le bon dossier~~
 + ~~refaire cd pour windows~~
 + update
++ metadonnées lors de l'envoi

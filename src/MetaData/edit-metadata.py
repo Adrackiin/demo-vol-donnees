@@ -1,24 +1,22 @@
-from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2 import PdfFileReader, PdfFileMerger
 from sectime import setctime
 from timestamp import to_timestamp
 import os
 
 
-def set_pdf_metadata(path, metadata):
-    file = open(path, 'rb')
-    reader = PdfFileReader(file)
-    writer = PdfFileWriter()
-    writer.appendPagesFromReader(reader)
-    writer.addMetadata(metadata)
-    fout = open(f"{path}hjh", 'wb')
-    writer.write(fout)
+def set_pdf_metadata(path_src, path_dst):
+    file = open(path_src, 'rb')
+    merger = PdfFileMerger()
+    merger.append(file)
+    fout = open(f"{path_dst}", 'wb')
+    merger.write(fout)
     file.close()
     fout.close()
-    # try:
-    #     setctime(f"{path}hjh", to_timestamp("23/03/1991 12:12:48"))
-    # except:
-    #     print("error")
-    # os.utime(f"{path}hjh", (os.path.getctime(path), os.path.getmtime(path)))
+    try:
+        setctime(f"{path_dst}", to_timestamp("23/03/1998 12:12:48"))
+    except Exception as e:
+        print(e)
+    os.utime(f"{path_dst}", (os.path.getctime(path_src), os.path.getmtime(path_src)))
 
 
 def get_pdf_metadata(path):
@@ -28,5 +26,6 @@ def get_pdf_metadata(path):
     file.close()
     return metadata
 
+if __name__ == '__main__':
+    set_pdf_metadata("../r.pdf", "../g.pdf")
 
-set_pdf_metadata("../r.pdf", get_pdf_metadata("../r.pdf"))
