@@ -1,6 +1,11 @@
-from .Protocol_TCP_server import Protocol_TCP_server
-from .Terminal_server import Terminal
+import sys
 
-tcp = Protocol_TCP_server()
-tcp.start_server("localhost", 25009)
-Terminal(tcp)
+from .Terminal import Terminal
+
+
+def start_server(args):
+    Terminal("localhost", 25000 if len(args) <= 0 else int(args[0]))
+
+
+if __name__ == "__main__":
+    start_server(sys.argv[1:])
