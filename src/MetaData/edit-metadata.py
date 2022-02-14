@@ -1,40 +1,49 @@
-
-from sectime import setctime
-from timestamp import to_timestamp
 import os
-# from PyPDF2 import PdfFileReader, PdfFileWriter
-#
-#
-# def set_pdf_metadata(path_src, path_dst):
-#     reader = PdfFileReader(path_dst)
-#     writer = PdfFileWriter()
-#     writer.appendPagesFromReader(reader)
-#     writer.addMetadata(get_pdf_metadata(path_src))
-#
-#     file = open(path_src, 'rb')
-#
-#     fout = open(f"{path_dst}", 'wb')
-#     writer.write(fout)
-#     file.close()
-#     fout.close()
-#     try:
-#         setctime(f"{path_dst}", to_timestamp("23/03/1998 12:12:48"))
-#     except Exception as e:
-#         print(e)
-#     os.utime(f"{path_dst}", (os.path.getctime(path_src), os.path.getmtime(path_src)))
-#
-#
-# def get_pdf_metadata(path):
-#     file = open(path, 'rb')
-#     reader = PdfFileReader(file)
-#     metadata = reader.getDocumentInfo()
-#     file.close()
-#     return metadata
+from PyPDF2 import PdfFileReader, PdfFileWriter
 
-def windows(path_dst):
-    setctime(f"{path_dst}", to_timestamp("23/03/1998 12:12:48"))
+
+def replace_file(path, bad, good):
+    swap_file_name(path, f"{path}/{bad}", f"{path}/{good}")
+    set_pdf_metadata(f"{path}/{good}", f"{path}/{bad}")
+    os.remove(f"{path}/{good}")
+
+
+def swap_file_name(path, file1, file2):
+    dirs = os.listdir(path)
+    tmp = f"{file1}.tmp"
+    while tmp in dirs:
+        tmp += ".tmp"
+    os.rename(f"{file1}", tmp)
+    os.rename(f"{file2}", f"{file1}")
+    os.rename(tmp, f"{file2}")
+
+
+def set_pdf_metadata(path_src, path_dst):
+    metadata = get_pdf_metadata(path_src)
+    writer = get_pdf_content(path_dst)
+    writer.addMetadata(metadata)
+
+    fout = open(f"{path_dst}", 'wb')
+    writer.write(fout)
+    fout.close()
+
+    os.utime(f"{path_dst}", (os.path.getctime(path_src), os.path.getmtime(path_src)))
+
+
+def get_pdf_metadata(path):
+    file = open(path, 'rb')
+    reader = PdfFileReader(file)
+    metadata = reader.getDocumentInfo()
+    file.close()
+    return metadata
+
+
+def get_pdf_content(path):
+    reader = PdfFileReader(path)
+    writer = PdfFileWriter()
+    writer.appendPagesFromReader(reader)
+    return writer
+
 
 if __name__ == '__main__':
-    windows("../j.pdf")
-    # set_pdf_metadata("../r.pdf", "../j.pdf")
-
+    replace_file("/home/belecesne/projetZZ2-gitlab/src", "j.pdf", "b.pdf")
