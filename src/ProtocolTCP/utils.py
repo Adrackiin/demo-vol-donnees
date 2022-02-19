@@ -35,6 +35,8 @@ def get_path(base, go_to):
     # . correspond au dossier d'exécution
     if base == '.':
         base = os.getcwd()
+    if go_to == '.':
+        return base
     # Évite plusieurs / à la suite
     path = re.sub("/+", '/', go_to if go_to != "" and go_to[0] == '/' else base + '/' + go_to)
     # Liste des sous dossiers
