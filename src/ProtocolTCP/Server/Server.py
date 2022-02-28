@@ -68,14 +68,17 @@ class Server:
         except Exception:
             raise
 
-    def put_file(self, file_to_send, destination_path):
+    def put_file(self, file_to_send, destination_path, replace):
         """
         Envoie un fichier au client
         """
         if not file_is_present(file_to_send):
             raise FileNotFoundError(f"File '{file_to_send}' doesn't exist")
         try:
-            self.client.send_command("PUT", destination_path)
+            if len(replace) > 0:
+                self.client.send_command("PUT", destination_path, replace)
+            else:
+                self.client.send_command("PUT", destination_path)
             # Savoir si on peut continuer (le chemin de destination existe)
             self.client.receive_msg()
             self.client.send_file(file_to_send)

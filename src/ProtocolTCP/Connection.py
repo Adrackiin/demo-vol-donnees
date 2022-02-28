@@ -123,16 +123,17 @@ class Connection:
         """
         self.send_msg("Erreur client\n" + "{0}".format(error), Flag.ERROR)
 
-    def send_command(self, action, args=""):
+    def send_command(self, action, *args):
         """
         Envoie une commande sous la forme 'action arg1 args2...'
         Les espaces ne séparant pas d'arguments sont précédés d'un '\'
         """
-        if type(args) == str:
-            args = [args]
         command = f"{action} "
         for arg in args:
+            if type(arg) == list:
+                arg = arg[0]
             command += arg.replace("\\", "\\\\").replace(" ", "\\ ")
+            command += ' '
         self.send_msg(command, Flag.COMMAND)
 
     def receive_msg(self):
@@ -177,3 +178,4 @@ class Connection:
         for chunk in self.receive_packet():
             file.write(chunk)
         file.close()
+        return file_name
