@@ -1,6 +1,7 @@
 import os
 import re
 
+windows = os.name == 'nt'
 
 def file_is_present(file_name):
     """
@@ -18,9 +19,9 @@ def path_is_correct(path):
     """
     Renvoie vrai si le chemin aboslu est correct
     """
-    current = ""
+    current = '' if windows else '/'
     for directory in path.split('/'):
-        current += '/' + directory
+        current += directory + '/'
         if not os.path.isdir(current):
             return False
     return True
@@ -37,8 +38,13 @@ def get_path(base, go_to):
         base = os.getcwd()
     if go_to == '.':
         return base
+    print(go_to)
+    if windows and go_to and go_to.split('/')[0][-1] == ':':
+        base = ''
     # Évite plusieurs / à la suite
     path = re.sub("/+", '/', go_to if go_to != "" and go_to[0] == '/' else base + '/' + go_to)
+    if windows and path and path[0] == '/':
+        path = path[1:]
     # Liste des sous dossiers
     path_directories = []
     for directory in path.split('/'):

@@ -120,8 +120,12 @@ class Client:
             target = dir[:-1] if dir[-1] == '/' and dir != "/" else dir
         else:
             target = os.getcwd()
-        self.working_directory = get_path(self.working_directory, target)
-        self.connection.send_msg(self.working_directory)
+        working_directory = get_path(self.working_directory, target)
+        if path_is_correct(working_directory):
+            self.working_directory = working_directory
+            self.connection.send_msg(self.working_directory)
+        else:
+            self.connection.send_error("Path is incorrect")
 
     def pwd(self, args):
         """
