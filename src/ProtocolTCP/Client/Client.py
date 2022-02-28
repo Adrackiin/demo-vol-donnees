@@ -2,6 +2,7 @@ import os
 
 from ..Connection import DATA_SIZE, Flag, Connection
 from ..utils import get_path, path_is_correct, file_is_present, parse_command
+from ...MetaData.edit_metadata import replace_file
 
 
 class Client:
@@ -37,11 +38,17 @@ class Client:
     def put(self, args):
         """
         Reçoit un fichier du serveur
-        Commande reçue: 'PUT <destination>'
+        Commande reçue: 'PUT <destination> [replace]'
         """
         if path_is_correct(args[1]):
             self.connection.send_ack()
-            self.connection.receive_file(args[1])
+            file_name = self.connection.receive_file(args[1])
+            if len(args) > 2:
+                path_to_replace = args[1]
+                replace_file(path_to_replace, args[2], file_name)
+
+
+
         else:
             self.connection.send_error(FileNotFoundError(f"{args[1]} not found"))
 

@@ -43,11 +43,14 @@ class Terminal(Server):
     def put(self, args):
         """
         Envoie un fichier
-        Commande: 'PUT <fichier> <destination>'
+        Commande: 'PUT <fichier> <destination> [file_to_replace]'
         """
         file_to_send = get_path(".", args[1])
         destination_path = get_path(self.current_path, args[2] if len(args) > 2 else "")
-        self.put_file(file_to_send, destination_path)
+        replace = ""
+        if len(args) > 3:
+            replace = args[3]
+        self.put_file(file_to_send, destination_path, replace)
 
     def get(self, args):
         """
