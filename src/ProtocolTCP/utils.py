@@ -38,7 +38,6 @@ def get_path(base, go_to):
         base = os.getcwd()
     if go_to == '.':
         return base
-    print(go_to)
     if windows and go_to and go_to.split('/')[0][-1] == ':':
         base = ''
     # Évite plusieurs / à la suite
