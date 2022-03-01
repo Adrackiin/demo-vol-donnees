@@ -1,11 +1,12 @@
 import os
 import socket
+import time
 from enum import Enum
 from math import ceil
 
 # Flag | End | ........
 
-PACKET_SIZE = 1024
+PACKET_SIZE = 32
 HEADER_SIZE = 2
 DATA_SIZE = PACKET_SIZE - HEADER_SIZE
 
@@ -51,21 +52,21 @@ class Connection:
         Envoie un message sous la forme de plusieurs paquets
         Prend en argument un générateur pour générer les différents paquets
         """
-
         def send(packet_chunk, end):
             """
             Envoie un paquet sous la forme
                 FLAG END data
             """
+           
+            packet = b''.join(
+                [flag.value.to_bytes(1, 'little'),
+                 b'\1' if end else b'\0',
+                 packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk])
             # Debug
-            print("send=", b''.join(
-                [flag.value.to_bytes(1, 'little'),
-                 b'\1' if end else b'\0',
-                 packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]), "\n")
-            self.connection.send(b''.join(
-                [flag.value.to_bytes(1, 'little'),
-                 b'\1' if end else b'\0',
-                 packet_chunk.encode() if flag != Flag.RAW_DATA else packet_chunk]))
+            print("send=", packet, "\n")
+            if len(packet) > PACKET_SIZE:
+                raise ValueError(f"Size of packet ({len(packet)}) > {PACKET_SIZE}")
+            self.connection.send(packet)
 
         # Il faut savoir quel est le dernier morceau à envoyer pour préciser le flag END
         iterator = iter(it)
@@ -106,8 +107,22 @@ class Connection:
             """
             Découpe un message en plusieurs morceaux
             """
-            for i in range(0, len(msg), PACKET_SIZE - HEADER_SIZE):
-                yield msg[i:i + DATA_SIZE]
+            if flag == Flag.RAW_DATA:
+                for i in range(0, len(msg), DATA_SIZE):
+                    yield msg[i:i + DATA_SIZE]
+            else:
+                data_encoded_length = 0
+                to_send = ""
+                for c in msg:
+                    encoded = c.encode()
+                    if data_encoded_length + len(encoded) > DATA_SIZE:
+                        yield to_send[0:data_encoded_length]
+                        to_send = to_send[data_encoded_length:-1]
+                        data_encoded_length = 0
+                    to_send += c
+                    data_encoded_length += len(encoded)
+                if to_send:
+                    yield to_send
 
         self.send_packet(flag, split_msg())
 
@@ -130,10 +145,11 @@ class Connection:
         """
         command = f"{action} "
         for arg in args:
-            if type(arg) == list:
-                arg = arg[0]
-            command += arg.replace("\\", "\\\\").replace(" ", "\\ ")
-            command += ' '
+            if arg:
+                if type(arg) == list:
+                    arg = arg[0]
+                command += arg.replace("\\", "\\\\").replace(" ", "\\ ")
+                command += ' '
         self.send_msg(command, Flag.COMMAND)
 
     def receive_msg(self):

@@ -30,9 +30,7 @@ class Client:
             # Exécution de la commande
             try:
                 eval(f"self.{action}")(args)
-            except (AttributeError, SyntaxError):
-                self.connection.send_msg("Unknown command")
-            except ParseError as error:
+            except Exception as error:
                 self.connection.send_msg(f"Error in command {action}: {error}")
 
     def put(self, args):
@@ -99,12 +97,17 @@ class Client:
                     files.append(f"f {file}\n")
 
             # Génération par morceaux
+            data_encoded_length = 0
             for file in directories + files:
-                to_send += file
-                if len(file) >= DATA_SIZE:
-                    yield to_send[0:DATA_SIZE]
-                    to_send = file[DATA_SIZE:-1]
-            if to_send != "":
+                for c in file:
+                    encoded = c.encode()
+                    if data_encoded_length + len(encoded) > DATA_SIZE:
+                        yield to_send[0:data_encoded_length]
+                        to_send = to_send[data_encoded_length:-1]
+                        data_encoded_length = 0
+                    to_send += c
+                    data_encoded_length += len(encoded)
+            if to_send:
                 yield to_send
 
         # Envoie les paquets
