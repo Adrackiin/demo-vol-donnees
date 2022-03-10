@@ -7,17 +7,17 @@
 + Execution arrière plan
 + ~~parser côté serveur~~
 + ~~parser coté client~~
-+ Edit metadata au moment de l'envoie ou réception
++ ~~Edit metadata au moment de l'envoie ou réception~~
 + ~~Changer protocol de création de trame~~
 + ~~put dans le bon dossier~~
 + ~~refaire cd pour windows~~
-+ Execution automatique rubber ducky
-+ Key logger joli
-+ Documenter key logger
-+ Documenter metadata
-+ Rapport
++ ~~Execution automatique rubber ducky~~
++ ~~Key logger joli~~
++ ~~Documenter key logger~~
++ ~~Documenter metadata~~
++ ~~Rapport~~
 + Vidéo
-+ Poster
++ ~~Poster~~
 
 ## Extensions
 
