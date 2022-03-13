@@ -6,7 +6,7 @@ from math import ceil
 
 # Flag | End | ........
 
-PACKET_SIZE = 32
+PACKET_SIZE = 1024
 HEADER_SIZE = 2
 DATA_SIZE = PACKET_SIZE - HEADER_SIZE
 
@@ -77,6 +77,7 @@ class Connection:
         for chunk in iterator:
             send(current, False)
             current = chunk
+            time.sleep(0.05)
         send(current, True)
 
     def receive_packet(self):
