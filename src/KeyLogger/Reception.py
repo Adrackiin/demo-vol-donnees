@@ -9,6 +9,7 @@ file = f"log_{time.time()}.txt"
 
 def on_message(client, userdata, msg):
     with open(file, 'a', encoding='utf8') as f:
+        print("Réception d'un message")
         print(bytes(msg.payload).decode('utf8'), file=f)
 
 
